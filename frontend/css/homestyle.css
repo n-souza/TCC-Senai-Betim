@@ -100,8 +100,11 @@ body {
     background-color: #41852b;
 }
 
-/* Estilização da Tabela */
+/* Estilização da Tabela Dinâmica */
 .table-container {
+    min-height: 400px;
+    background-color: #1c1c1e;
+    border-radius: 8px;
     overflow-x: auto;
 }
 
@@ -127,54 +130,71 @@ body {
 }
 
 .custom-table td {
-    padding: 22px;
+    padding: 14px 10px;
     border-bottom: 1px solid #234221;
     border-right: 1px solid #234221;
-    height: 45px; /* Mantém a altura das células vazias */
+    vertical-align: middle;
 }
 
 .custom-table td:last-child {
     border-right: none;
 }
 
-/* Efeito sutil ao passar o mouse nas linhas preenchidas futuramente */
+.custom-table tbody tr {
+    height: 54px;
+    transition: background-color 0.2s;
+}
+
 .custom-table tbody tr:hover {
     background-color: #32363c;
 }
 
+/* Badges Visuais (Estilos para as tags de criticidade e etapa) */
+.badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.badge.alta { background-color: #d32f2f; color: white; }
+.badge.media { background-color: #f57c00; color: white; }
+.badge.baixa { background-color: #388e3c; color: white; }
+
+.badge.envio { background-color: #7b1fa2; color: white; }
+.badge.peritagem { background-color: #1976d2; color: white; }
+.badge.aprovacao { background-color: #00796b; color: white; }
+.badge.execucao { background-color: #fbc02d; color: #333; }
+.badge.retorno { background-color: #e64a19; color: white; }
+
+
 /* ==========================================
    ESTILIZAÇÃO DO MODAL (POP-UP)
    ========================================== */
-
-/* O fundo escurecido que cobre a tela inteira */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75); /* Sombra transparente escura */
+    background-color: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    /* Começa invisível e bloqueado */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    z-index: 1000; /* Garante que fica por cima de tudo */
+    z-index: 1000;
 }
 
-/* Esta classe será adicionada pelo JavaScript para fazer o modal aparecer */
 .modal-overlay.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-/* A caixinha centralizada do formulário */
 .modal-box {
-    background-color: #26292b; /* O mesmo cinza escuro do seu container */
-    border: 1.5px solid #193018; /* Borda no azul escuro do botão */
+    background-color: #26292b;
+    border: 1.5px solid #193018;
     width: 90%;
     max-width: 500px;
     padding: 30px;
@@ -183,7 +203,6 @@ body {
     color: #ffffff;
 }
 
-/* Topo do modal (Título e botão de fechar) */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -198,7 +217,6 @@ body {
     font-weight: 600;
 }
 
-/* Botão X para fechar */
 .close-btn {
     background: none;
     border: none;
@@ -212,7 +230,6 @@ body {
     color: #ffffff;
 }
 
-/* Organização dos campos de texto */
 .modal-form {
     display: flex;
     flex-direction: column;
@@ -233,11 +250,10 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Estilização dos Inputs, Textarea e Selects para ficarem escuros */
 .modal-form input, 
 .modal-form textarea, 
 .modal-form select {
-    background-color: #1a1c1e; /* Fundo dos campos igual ao fundo do site */
+    background-color: #1a1c1e;
     border: 1px solid #3d4246;
     color: white;
     padding: 12px;
@@ -250,17 +266,15 @@ body {
 .modal-form input:focus, 
 .modal-form textarea:focus, 
 .modal-form select:focus {
-    border-color: #193018; /* Brilha azul ao clicar */
+    border-color: #377a32;
 }
 
-/* Input desabilitado (como a TAG que não pode mudar) */
 .modal-form input:disabled {
     background-color: #131415;
     color: #757575;
     cursor: not-allowed;
 }
 
-/* Coloca a Criticidade e Etapa lado a lado */
 .form-row {
     display: flex;
     gap: 15px;
@@ -270,7 +284,6 @@ body {
     flex: 1;
 }
 
-/* Botão de Salvar lá embaixo */
 .btn-salvar {
     background-color: #234221;
     color: white;
@@ -287,4 +300,108 @@ body {
 
 .btn-salvar:hover {
     background-color: #193018;
+}
+
+/* ==========================================
+   REGRA DE RESPONSIVIDADE PARA CELULAR (<768px)
+   ========================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .search-container {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .button-group {
+        width: 100%;
+    }
+
+    .btn {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    /* Transforma a estrutura da tabela em blocos verticais */
+    .custom-table, 
+    .custom-table thead, 
+    .custom-table tbody, 
+    .custom-table th, 
+    .custom-table td, 
+    .custom-table tr { 
+        display: block; 
+    }
+
+    /* Oculta o header horizontal padrão */
+    .custom-table thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    /* Transforma cada linha inserida em um Card individual */
+    .custom-table tbody tr { 
+        border: 1px solid #3d4246;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 12px;
+        background-color: #242629;
+        height: auto;
+    }
+    
+    /* Configura as células para exibirem as labels laterais */
+    .custom-table td { 
+        border: none !important;
+        position: relative;
+        padding-left: 45% !important;
+        text-align: left;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Injeta o nome da coluna de forma responsiva antes do dado */
+    .custom-table td::before { 
+        position: absolute;
+        left: 12px;
+        width: 40%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+        font-weight: bold;
+        color: #a0a5ad;
+        font-size: 13px;
+    }
+
+    /* Mapeamento de Labels automáticas */
+    .custom-table td:nth-of-type(1)::before { content: "TAG:"; }
+    .custom-table td:nth-of-type(2)::before { content: "NOME:"; }
+    .custom-table td:nth-of-type(3)::before { content: "SETOR:"; }
+    .custom-table td:nth-of-type(4)::before { content: "OBSERVAÇÃO:"; }
+    .custom-table td:nth-of-type(5)::before { content: "CRITICIDADE:"; }
+    .custom-table td:nth-of-type(6)::before { content: "ETAPA:"; }
+
+    /* Ajuste para o formulário popup no celular */
+    .modal-box {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
 }
