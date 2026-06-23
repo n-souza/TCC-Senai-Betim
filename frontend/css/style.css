@@ -48,12 +48,6 @@ body {
     margin-bottom: 20px;
 }
 
-.warning-icon {
-    width: 45px;
-    height: 45px;
-    color: #ffffff;
-}
-
 .header-warning h2 {
     font-family: 'Roboto', sans-serif;
     font-size: 1.8rem;
