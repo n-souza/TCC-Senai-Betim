@@ -14,8 +14,6 @@ if (loginForm) {
     loginForm.addEventListener('submit', function(event) {
         event.preventDefault(); 
         console.log("Formulário de login interceptado com sucesso.");
-        
-        // CORREÇÃO AQUI: Adicionado a pasta frontend antes do caminho
         window.location.href = "frontend/html/home.html"; 
     });
 }
@@ -23,7 +21,7 @@ if (loginForm) {
 // ==========================================
 // LÓGICA DA TELA HOME & MODAL (RF2 e RF3)
 // ==========================================
-function ativarModoEdicao() {
+function activarModoEdicao() {
     modoEdicaoAtivo = true;
     document.getElementById('botoesPadrao').style.display = 'none';
     document.getElementById('avisoSelecao').style.display = 'flex';
@@ -54,7 +52,12 @@ function abrirRF3(tagEquipamento, elementoLinha) {
     document.getElementById('inputTag').value = tagEquipamento;
     document.getElementById('inputNome').value = elementoLinha.cells[1].innerText;
     document.getElementById('inputFabricante').value = ""; 
-    document.getElementById('txtDescricao').value = elementoLinha.cells[3].innerText === 'Sem observações.' ? '' : elementoLinha.cells[3].innerText;
+    
+    // CORRIGIDO: Agora busca a classe correta 'conteudo-scroll'
+    const divScroll = elementoLinha.cells[3].querySelector('.conteudo-scroll');
+    const textoObservacao = divScroll ? divScroll.innerText : elementoLinha.cells[3].innerText;
+    document.getElementById('txtDescricao').value = textoObservacao === 'Sem observações.' ? '' : textoObservacao;
+    
     document.getElementById('selectCriticidade').value = badgeCriticidade;
     document.getElementById('selectEtapa').value = badgeEtapa;
 
@@ -104,11 +107,16 @@ if (formEquipamento) {
                 abrirRF3(tag, this);
             });
 
+            // CORRIGIDO: Injeta a classe 'conteudo-scroll' compatível com seu CSS
             novaLinha.innerHTML = `
                 <td>${tag.toUpperCase()}</td>
                 <td>${nome}</td>
                 <td>Planta de Beneficiamento</td>
-                <td>${descricao ? descricao : 'Sem observações.'}</td>
+                <td>
+                    <div class="conteudo-scroll">
+                        ${descricao ? descricao : 'Sem observações.'}
+                    </div>
+                </td>
                 <td><span class="badge ${criticidade}">${criticidade.toUpperCase()}</span></td>
                 <td><span class="badge ${etapa}">${etapa.toUpperCase()}</span></td>
             `;
@@ -118,7 +126,14 @@ if (formEquipamento) {
         } else {
             if (linhaSendoEditada) {
                 linhaSendoEditada.cells[1].innerText = nome;
-                linhaSendoEditada.cells[3].innerText = descricao ? descricao : 'Sem observações.';
+                
+                // CORRIGIDO: Mantém a classe 'conteudo-scroll' ao editar
+                linhaSendoEditada.cells[3].innerHTML = `
+                    <div class="conteudo-scroll">
+                        ${descricao ? descricao : 'Sem observações.'}
+                    </div>
+                `;
+                
                 linhaSendoEditada.cells[4].innerHTML = `<span class="badge ${criticidade}">${criticidade.toUpperCase()}</span>`;
                 linhaSendoEditada.cells[5].innerHTML = `<span class="badge ${etapa}">${etapa.toUpperCase()}</span>`;
             }
@@ -141,7 +156,7 @@ if (inputPesquisa) {
         linhasTabela.forEach(function(linha) {
             if (linha.cells.length > 0) {
                 const tag = linha.cells[0].innerText.toLowerCase();
-                const nome = inlineNome = linha.cells[1].innerText.toLowerCase();
+                const nome = linha.cells[1].innerText.toLowerCase();
 
                 if (tag.includes(termoPesquisa) || nome.includes(termoPesquisa)) {
                     linha.style.display = ""; 
@@ -162,9 +177,9 @@ function ordenarPorCriticidade() {
 
     const pesos = { 'ALTA': 3, 'MÉDIA': 2, 'MEDIA': 2, 'BAIXA': 1 };
 
-    linhas.sort(function(linhaA, linhaB) {
+    linhas.sort(function(linhaA, inlineB) {
         const badgeA = linhaA.cells[4].querySelector('.badge');
-        const badgeB = linhaB.cells[4].querySelector('.badge');
+        const badgeB = inlineB.cells[4].querySelector('.badge');
 
         const textoA = badgeA ? badgeA.innerText.toUpperCase().trim() : '';
         const textoB = badgeB ? badgeB.innerText.toUpperCase().trim() : '';
@@ -192,9 +207,9 @@ function ordenarPorEtapa() {
 
     const fluxoEtapas = { 'ENVIO': 1, 'PERITAGEM': 2, 'APROVAÇÃO': 3, 'APROVACAO': 3, 'EXECUÇÃO': 4, 'EXECUCAO': 4, 'RETORNO': 5 };
 
-    linhas.sort(function(linhaA, linhaB) {
-        const badgeA = linhaA.cells[5].querySelector('.badge');
-        const badgeB = linhaB.cells[5].querySelector('.badge');
+    linhas.sort(function(linhaA, inlineB) {
+        const badgeA = inlineB.cells[5].querySelector('.badge');
+        const badgeB = inlineB.cells[5].querySelector('.badge');
 
         const textoA = badgeA ? badgeA.innerText.toUpperCase().trim() : '';
         const textoB = badgeB ? badgeB.innerText.toUpperCase().trim() : '';

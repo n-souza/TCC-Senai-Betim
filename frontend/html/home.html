@@ -33,7 +33,7 @@
                         <th>TAG</th>
                         <th>NOME</th>
                         <th>SETOR</th>
-                        <th>OBSERVAÇÃO</th>
+                        <th class="thObservacao">OBSERVAÇÃO</th>
                         <th id="thCriticidade" onclick="ordenarPorCriticidade()" style="cursor: pointer; user-select: none;">CRITICIDADE <span id="setaCriticidade">↕</span></th>
                         <th id="thEtapa" onclick="ordenarPorEtapa()" style="cursor: pointer; user-select: none;">ETAPA <span id="setaEtapa">↕</span></th>
                     </tr>
@@ -69,7 +69,7 @@
 
                 <div class="form-group">
                     <label>Descrição Técnica</label>
-                    <textarea id="txtDescricao" rows="3" placeholder="Especificações do item..."></textarea>
+                    <textarea id="txtDescricao" rows="3" placeholder="Especificações do item..." maxlength="300"></textarea>
                 </div>
 
                 <div class="form-row">
