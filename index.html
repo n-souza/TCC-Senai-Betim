@@ -25,14 +25,14 @@
                     Caso você não possua credenciais de acesso, entre em contato com o setor responsável.
                 </p>
 
-                <form class="login-form" id="loginForm" method="POST">
+                <form class="login-form" id="loginForm" method="POST" action="backend/ProcessarLogin.php">
                     <div class="input-group">
-                        <label for="id">ID</label>
-                        <input type="text" id="id" name="id" required autocomplete="off">
+                        <label for="id">Email Corporativo *</label>
+                        <input type="text" id="id" name="email" required autocomplete="off">
                     </div>
                     
                     <div class="input-group">
-                        <label for="senha">SENHA</label>
+                        <label for="senha">SENHA *</label>
                         <input type="password" id="senha" name="senha" required>
                     </div>
                     

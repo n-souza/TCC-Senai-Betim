@@ -27,7 +27,7 @@ function registrarLog(acao, tag, detalhes) {
     historicoAlteracoes.unshift(novoLog);
 }
 
-// LÓGICA DA TELA DE LOGIN (RF1)
+/* // LÓGICA DA TELA DE LOGIN (RF1)
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', function(event) {
@@ -35,7 +35,7 @@ if (loginForm) {
         console.log("Formulário de login interceptado com sucesso.");
         window.location.href = "frontend/home.html";
     });
-}
+} */
 
 // FUNÇÃO DE RENDERIZAÇÃO DA TABELA
 function renderizarTabela() {
