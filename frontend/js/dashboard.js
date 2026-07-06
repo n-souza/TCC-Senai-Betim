@@ -20,17 +20,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// HISTÓRICO & LOGS
+// HISTÓRICO & LOGS (MODIFICADO PARA SALVAR NO BANCO)
 async function registrarLog(acao, tag, detalhes) {
     const agora = new Date();
-    
-    // Forçando o fuso horário de Brasília na criação do Log local
-    const dataFormatada = agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', { 
-        timeZone: 'America/Sao_Paulo', 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    });
+    const dataFormatada = agora.toLocaleDateString('pt-BR');
+    const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     
     const tagFormatada = String(tag).toUpperCase();
 
@@ -60,11 +54,13 @@ async function registrarLog(acao, tag, detalhes) {
 
 // RENDERIZAÇÃO DA TABELA
 async function carregarDadosDoBanco() {
-    const dados = await API.buscarItens(); 
+    const dados = await API.buscarItens(); // Certifique-se de que sua API também traga o histórico antigo se quiser listá-lo ao iniciar
     if (dados) {
         itensAtivos = dados.ativos || [];
         itensArquivados = dados.arquivados || [];
-        historicoAlteracoes = dados.historico || []; 
+        historicoAlteracoes = dados.historico || [];
+        // Se a sua API buscarItens trouxer os logs antigos do banco, descomente a linha abaixo:
+        // historicoAlteracoes = dados.historico || []; 
         renderizarTabela();
     }
 }
@@ -154,12 +150,14 @@ function abrirParaCadastrar() {
     document.getElementById('modalTitle').innerText = "Cadastrar Novo Item";
     document.getElementById('formEquipamento').reset();
     
+    // REMOVIDO 'inputTag' DESTA LISTA PARA QUE ELE NÃO SEJA HABILITADO
     const campos = ['inputNome', 'inputFabricante', 'txtDescricao', 'selectCriticidade', 'selectEtapa'];
     campos.forEach(id => document.getElementById(id).disabled = false);
 
+    // Garante que o campo de TAG fique limpo e bloqueado no cadastro
     const inputTag = document.getElementById('inputTag');
     inputTag.disabled = true;
-    inputTag.placeholder = "Gerado automaticamente"; 
+    inputTag.placeholder = "Gerado automaticamente"; // Opcional: muda o placeholder para avisar o usuário
 
     document.getElementById('btnArquivarModal').style.display = 'none';
     document.getElementById('btnDesarquivarModal').style.display = 'none';
@@ -173,7 +171,7 @@ function fecharModal() {
     linhaSendoEditada = null;
 }
 
-// PROCESSO DE SALVAR / CADASTRAR 
+// PROCESSO DE SALVAR / CADASTRAR (CORRIGIDO PARA ESPERAR LOGS ASSÍNCRONOS)
 async function salvarFormulario(event) {
     event.preventDefault(); 
 
@@ -219,9 +217,11 @@ async function salvarFormulario(event) {
         if (isCadastro) {
             dadosForm.tag = resultado.tag; 
             itensAtivos.unshift(dadosForm);
+            // Salva log de cadastro no banco
             await registrarLog("CADASTRO", dadosForm.tag, `O equipamento "${dadosForm.nome}" foi cadastrado.`);
         } else {
             itensAtivos[idx] = dadosForm;
+            // Salva log de edição no banco
             await registrarLog("EDIÇÃO", itemAntigo.tag, alteracoes.length > 0 ? alteracoes.join(', ') : 'Nenhum valor modificado.');
         }
 
@@ -237,11 +237,15 @@ async function salvarFormulario(event) {
     fecharModal();
 }
 
-// ARQUIVAR / DESARQUIVAR
+// ARQUIVAR / DESARQUIVAR (ATUALIZADO PARA SUPORTAR FUNÇÃO DE LOG ASSÍNCRONA)
 async function moverEquipamento(origem, destino, acaoLog, textoLog) {
     if (!linhaSendoEditada) return;
     const idx = linhaSendoEditada.dataset.index;
+    
+    // Pega uma referência do item antes de retirá-lo da lista
     const item = origem[idx]; 
+    
+    // CORREÇÃO DE SEGURANÇA: Garante que a propriedade exista independente de maiúscula/minúscula no objeto
     const tagItem = item.tag || item.TAG || null;
 
     if (!tagItem) {
@@ -249,9 +253,11 @@ async function moverEquipamento(origem, destino, acaoLog, textoLog) {
         return;
     }
     
+    // Descobre se a intenção é arquivar ou desarquivar para mandar pro PHP
     const acaoBanco = (acaoLog === "ARQUIVAMENTO") ? "arquivar" : "desarquivar";
 
     try {
+        // 1. Envia a requisição para alterar as tabelas no MySQL
         const resposta = await fetch('../backend/arquivar_itens.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -261,20 +267,24 @@ async function moverEquipamento(origem, destino, acaoLog, textoLog) {
             })
         });
 
+        // Verifica se o servidor retornou status de sucesso HTTP (200)
         if (!resposta.ok) {
             throw new Error(`Erro no servidor: Status ${resposta.status}`);
         }
 
         const resultado = await resposta.json();
 
+        // Se o banco de dados falhar, interrompe o processo e avisa o usuário
         if (!resultado.sucesso) {
             alert('Erro ao mover o item no banco de dados: ' + resultado.erro);
             return;
         }
 
+        // 2. Se deu certo no banco, atualiza os arrays na memória local (da tela)
         origem.splice(idx, 1);
         destino.unshift(item);
 
+        // 3. Registra o log no banco e renderiza a tabela atualizada
         await registrarLog(acaoLog, tagItem, `O equipamento "${item.nome || ''}" ${textoLog}`);
         renderizarTabela();
         fecharModal();
@@ -317,8 +327,8 @@ function configurarFiltroPesquisa() {
         const termo = this.value.toLowerCase();
         document.querySelectorAll('.custom-table tbody tr').forEach(linha => {
             if (linha.cells.length <= 1) return;
-            const tag = linea = linha.cells[0].innerText.toLowerCase();
-            const nome = linha.cells[1].innerText.toLowerCase();
+            const tag = linha.cells[0].innerText.toLowerCase();
+            const nome = Finder = linha.cells[1].innerText.toLowerCase();
             linha.style.display = (tag.includes(termo) || nome.includes(termo)) ? "" : "none";
         });
     });
@@ -375,30 +385,22 @@ function fecharModalHistorico() {
     document.getElementById('modalHistorico').classList.remove('active');
 }
 
-// DOWNLOAD DO HISTÓRICO
 function baixarHistorico() {
     if (historicoAlteracoes.length === 0) return alert("Não há registros para exportar.");
 
-    const dataInicioStr = document.getElementById('dataInicio').value;
-    const dataFimStr = document.getElementById('dataFim').value;
+    // 1. Captura as datas selecionadas pelo usuário
+    const dataInicioStr = document.getElementById('dataInicio').value; // Formato YYYY-MM-DD
+    const dataFimStr = document.getElementById('dataFim').value;     // Formato YYYY-MM-DD
 
     let logsFiltrados = [...historicoAlteracoes];
 
-    // Tratamento dinâmico para o filtro de datas
+    // 2. Aplica o filtro de período se as datas forem preenchidas
     if (dataInicioStr || dataFimStr) {
         logsFiltrados = historicoAlteracoes.filter(log => {
-            let dataLogIso = "";
-
-            // Se a data vier do banco ("YYYY-MM-DD HH:MM:SS")
-            if (log.data.includes('-')) {
-                dataLogIso = log.data.split(' ')[0];
-            } 
-            // Se a data foi gerada recentemente pelo front ("DD/MM/YYYY às HH:MM")
-            else if (log.data.includes('/')) {
-                const dataPura = log.data.split(' ')[0]; // Pega "DD/MM/YYYY"
-                dataLogIso = dataPura.split('/').reverse().join('-'); // Transforma em "YYYY-MM-DD"
-            }
-
+            // O formato vindo do banco é "YYYY-MM-DD HH:MM:SS" ou similar. 
+            // Vamos extrair apenas a parte da data inicial para comparar corretamente.
+            const dataLogIso = log.data.split(' ')[0]; // Pega "YYYY-MM-DD"
+            
             let valido = true;
             if (dataInicioStr && dataLogIso < dataInicioStr) valido = false;
             if (dataFimStr && dataLogIso > dataFimStr) valido = false;
@@ -411,42 +413,38 @@ function baixarHistorico() {
         return alert("Nenhum registro encontrado para o período selecionado.");
     }
 
-    // Gerando o cabeçalho do PDF explicitando fuso horário de Brasília
-    const agoraRelatorio = new Date();
-    const dataRelatorio = agoraRelatorio.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    const horaRelatorio = agoraRelatorio.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-
+    // 3. Monta a estrutura HTML do PDF
     let conteudoHtml = `
-            <html>
-            <head>
-                <title>Relatório de Histórico de Alterações</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
-                    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
-                    p.sub { text-align: center; color: #7f8c8d; font-size: 14px; margin-top: 0; margin-bottom: 30px; }
-                    .item-log { border-bottom: 1px solid #eee; padding: 15px 0; page-break-inside: avoid; }
-                    .topo-log { display: flex; justify-content: space-between; font-size: 12px; color: #7f8c8d; margin-bottom: 5px; }
-                    .acao { font-weight: bold; }
-                    .tag { color: #27ae60; font-weight: bold; }
-                    .detalhes { font-size: 14px; margin: 0; color: #2c3e50; }
-                    @media print {
-                        body { margin: 0; }
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>HISTÓRICO DE ALTERAÇÕES DO SISTEMA</h1>
-                <p class="sub">Gerado em: ${dataRelatorio} às ${horaRelatorio}</p>
-        `;
+        <html>
+        <head>
+            <title>Relatório de Histórico de Alterações</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
+                h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+                p.sub { text-align: center; color: #7f8c8d; font-size: 14px; margin-top: 0; margin-bottom: 30px; }
+                .item-log { border-bottom: 1px solid #eee; padding: 15px 0; page-break-inside: avoid; }
+                .topo-log { display: flex; justify-content: space-between; font-size: 12px; color: #7f8c8d; margin-bottom: 5px; }
+                .acao { font-weight: bold; }
+                .tag { color: #27ae60; font-weight: bold; }
+                .detalhes { font-size: 14px; margin: 0; color: #2c3e50; }
+                @media print {
+                    body { margin: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>HISTÓRICO DE ALTERAÇÕES DO SISTEMA</h1>
+            <p class="sub">Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+    `;
 
-    logsFiltrados.forEach((log) => {
+    // Adiciona cada linha de log formatada
+    logsFiltrados.forEach((log, index) => {
+        // Formata a exibição da data para ficar bonita no PDF (de YYYY-MM-DD para DD/MM/YYYY se necessário)
         let dataExibicao = log.data;
-        
-        // Padroniza a exibição visual estritamente para o formato brasileiro DD/MM/YYYY
-        if (log.data.includes('-')) {
+        if(log.data.includes('-')) {
             const partes = log.data.split(' ');
             const dataPura = partes[0].split('-').reverse().join('/');
-            dataExibicao = `${dataPura} às ${partes[1] ? partes[1].substring(0, 5) : ''}`;
+            dataExibicao = `${dataPura} ${partes[1] || ''}`;
         }
 
         let corAcao = log.acao === "CADASTRO" ? "#2196f3" : log.acao === "EDIÇÃO" ? "#ffb300" : log.acao === "ARQUIVAMENTO" ? "#d32f2f" : "#4fa135";
@@ -464,10 +462,12 @@ function baixarHistorico() {
 
     conteudoHtml += `</body></html>`;
 
+    // 4. Abre a janela de impressão do navegador configurada para PDF
     const janelaImpressao = window.open('', '_blank');
     janelaImpressao.document.write(conteudoHtml);
     janelaImpressao.document.close();
     
+    // Aguarda um instante para carregar o HTML na nova janela e dispara o print/pdf
     setTimeout(() => {
         janelaImpressao.print();
         janelaImpressao.close();

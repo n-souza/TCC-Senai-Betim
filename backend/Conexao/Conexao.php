@@ -1,16 +1,9 @@
 <?php
 class Conexao {
-    // Dados para a hospedagem InfinityFree
-    private static $host = 'sql213.infinityfree.com';
-    private static $dbname = 'if0_42349837_raden';
-    private static $user = 'if0_42349837';
-    private static $password = '24338603';
-
-    //Dados para a hospedagem local
-    /*private static $host = '127.0.0.1';
-    private static $dbname = 'raden';
+    private static $host = '127.0.0.1';
+    private static $dbname = 'Raden';
     private static $user = 'root';
-    private static $password = 'root';*/
+    private static $password = 'root';
     
     private static $instancia = null;
 
