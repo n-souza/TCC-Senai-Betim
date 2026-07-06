@@ -104,7 +104,7 @@ body {
 .custom-table tbody tr td:nth-child(4) { max-height: 54px; overflow: hidden; }
 .thObservacao { width: 30%; }
 
-/* Scroll Interno da Célula - Corrigido bug visual do overflow */
+/* Scroll Interno da Célula */
 .conteudo-scroll {
     display: block;
     max-height: 32px;
@@ -122,7 +122,7 @@ body {
 }
 .btn-action-arquivar:hover { color: #ffb300; background-color: rgba(255, 179, 0, 0.1); }
 
-/* Modal */
+/* Modal Geral */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center;
@@ -154,6 +154,87 @@ body {
 .btn-modal-arquivar { flex: 1; background-color: #5c4308; color: #fff; border: 1px solid #826211; }
 .btn-modal-arquivar:hover { background-color: #423005; }
 
+/* --- Estilos do Modal de Histórico (Transferidos do Inline) --- */
+.modal-box.modal-historico-largura {
+    max-width: 600px;
+}
+
+.modal-header.modal-historico-header {
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.close-btn.modal-historico-close {
+    margin: 0;
+    padding: 5px 10px;
+}
+
+.filtro-pdf-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 12px;
+    background-color: #1a1c1e;
+    border-radius: 6px;
+    border: 1px solid #2b2e33;
+}
+
+.filtro-datas-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filtro-data-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.filtro-data-label {
+    color: #a0a5ad;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.filtro-data-input {
+    background-color: #111315;
+    color: #fff;
+    border: 1px solid #3a3f47;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+}
+
+.btn.btn-gerar-pdf {
+    background-color: #448639;
+    color: #ffffff;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+}
+
+.btn.btn-gerar-pdf:hover {
+    background-color: #35692b;
+}
+
+.icone-pdf {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.lista-historico-corpo {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
 /* Responsividade Dashboard */
 @media (max-width: 768px) {
     body { padding: 10px; }
@@ -161,6 +242,10 @@ body {
     .toolbar, .button-group, .form-row, .modal-footer-buttons { flex-direction: column; align-items: stretch; gap: 10px; }
     .search-container { max-width: 100%; }
     .btn { width: 100%; justify-content: center; }
+
+    /* Forçando comportamento responsivo para os filtros do histórico no mobile */
+    .filtro-pdf-container { flex-direction: column; align-items: stretch; }
+    .filtro-datas-wrapper { flex-direction: column; align-items: stretch; }
 
     /* Transformando tabela em blocos/cards */
     .custom-table, .custom-table thead, .custom-table tbody, .custom-table th, .custom-table td, .custom-table tr { display: block; }
