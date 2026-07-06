@@ -1,10 +1,15 @@
 <?php
 class Conexao {
     // Dados atualizados para a hospedagem InfinityFree
-    private static $host = 'sql213.infinityfree.com';
+    /*private static $host = 'sql213.infinityfree.com';
     private static $dbname = 'if0_42349837_raden';
     private static $user = 'if0_42349837';
-    private static $password = '24338603';
+    private static $password = '24338603';*/
+
+    private static $host = '127.0.0.1';
+    private static $dbname = 'raden';
+    private static $user = 'root';
+    private static $password = 'root';
     
     private static $instancia = null;
 

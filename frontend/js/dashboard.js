@@ -9,26 +9,49 @@ let itensAtivos = [];
 let itensArquivados = [];
 let historicoAlteracoes = [];
 
+// CONTROLE DE PAGINAÇÃO
+let paginaAtual = 1;
+const itensPorPagina = 15;
+let paginaAtualHistorico = 1;
+const itensPorPaginaHistorico = 10;
+
 // INICIALIZAÇÃO DO SISTEMA
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarDadosDoBanco();
     configurarFiltroPesquisa();
     
+    // Configura o formulário de cadastro/edição
     const formEquipamento = document.getElementById('formEquipamento');
     if (formEquipamento) {
         formEquipamento.addEventListener('submit', salvarFormulario);
     }
+
+    // --- CORREÇÃO AQUI: Vincula as funções de paginação aos botões do Histórico ---
+    const btnHistAnterior = document.getElementById('btnHistAnterior');
+    const btnHistProxima = document.getElementById('btnHistProxima');
+    
+    if (btnHistAnterior) {
+        btnHistAnterior.addEventListener('click', paginaAnteriorHistorico);
+    }
+    if (btnHistProxima) {
+        btnHistProxima.addEventListener('click', proximaPaginaHistorico);
+    }
+    // ----------------------------------------------------------------------------
 });
 
-// HISTÓRICO & LOGS (MODIFICADO PARA SALVAR NO BANCO)
+// HISTÓRICO & LOGS
 async function registrarLog(acao, tag, detalhes) {
     const agora = new Date();
-    const dataFormatada = agora.toLocaleDateString('pt-BR');
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    
+    const dataFormatada = agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const horaFormatada = agora.toLocaleTimeString('pt-BR', { 
+        timeZone: 'America/Sao_Paulo', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
     
     const tagFormatada = String(tag).toUpperCase();
 
-    // 1. Salva na memória local para exibição imediata na tela
     historicoAlteracoes.unshift({
         data: `${dataFormatada} às ${horaFormatada}`,
         acao: acao,
@@ -36,7 +59,8 @@ async function registrarLog(acao, tag, detalhes) {
         detalhes: detalhes
     });
 
-    // 2. Envia para o banco de dados via fetch API
+    paginaAtualHistorico = 1;
+
     try {
         await fetch('../backend/salvar_historico.php', {
             method: 'POST',
@@ -54,13 +78,11 @@ async function registrarLog(acao, tag, detalhes) {
 
 // RENDERIZAÇÃO DA TABELA
 async function carregarDadosDoBanco() {
-    const dados = await API.buscarItens(); // Certifique-se de que sua API também traga o histórico antigo se quiser listá-lo ao iniciar
+    const dados = await API.buscarItens(); 
     if (dados) {
         itensAtivos = dados.ativos || [];
         itensArquivados = dados.arquivados || [];
-        historicoAlteracoes = dados.historico || [];
-        // Se a sua API buscarItens trouxer os logs antigos do banco, descomente a linha abaixo:
-        // historicoAlteracoes = dados.historico || []; 
+        historicoAlteracoes = dados.historico || []; 
         renderizarTabela();
     }
 }
@@ -70,17 +92,27 @@ function renderizarTabela() {
     if (!tabelaBody) return;
     
     tabelaBody.innerHTML = "";
-    const listaAtual = visualizandoArquivados ? itensArquivados : itensAtivos;
+    const listaCompleta = visualizandoArquivados ? itensArquivados : itensAtivos;
 
-    if (listaAtual.length === 0) {
+    if (listaCompleta.length === 0) {
         tabelaBody.innerHTML = `<tr><td colspan="6" style="color: #a0a5ad; font-style: italic; padding: 30px; text-align: center;">Nenhum item encontrado.</td></tr>`;
+        atualizarControlesPagina(0);
         return;
     }
 
-    listaAtual.forEach((item, index) => {
+    const totalPaginas = Math.ceil(listaCompleta.length / itensPorPagina);
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas || 1;
+
+    const indiceInicio = (paginaAtual - 1) * itensPorPagina;
+    const indiceFim = indiceInicio + itensPorPagina;
+    const itensPaginados = listaCompleta.slice(indiceInicio, indiceFim);
+
+    itensPaginados.forEach((item, index) => {
+        const indexReal = indiceInicio + index; 
+
         const novaLinha = document.createElement('tr');
         novaLinha.style.cursor = "pointer";
-        novaLinha.dataset.index = index;
+        novaLinha.dataset.index = indexReal; 
         novaLinha.dataset.id = item.id;
 
         const tagGarantida = item.tag ? String(item.tag) : "";
@@ -102,6 +134,44 @@ function renderizarTabela() {
         `;
         tabelaBody.appendChild(novaLinha);
     });
+
+    atualizarControlesPagina(totalPaginas);
+}
+
+function atualizarControlesPagina(totalPaginas) {
+    const btnAnterior = document.getElementById('btnPagAnterior');
+    const btnProxima = document.getElementById('btnPagProxima');
+    const infoPagina = document.getElementById('infoPagina');
+
+    if (!btnAnterior || !btnProxima || !infoPagina) return;
+
+    if (totalPaginas <= 1) {
+        infoPagina.innerText = `Página 1 de 1`;
+        btnAnterior.disabled = true;
+        btnProxima.disabled = true;
+        return;
+    }
+
+    infoPagina.innerText = `Página ${paginaAtual} de ${totalPaginas}`;
+    btnAnterior.disabled = paginaAtual === 1;
+    btnProxima.disabled = paginaAtual === totalPaginas;
+}
+
+function paginaAnterior() {
+    if (paginaAtual > 1) {
+        paginaAtual--;
+        renderizarTabela();
+    }
+}
+
+function proximaPagina() {
+    const listaCompleta = visualizandoArquivados ? itensArquivados : itensAtivos;
+    const totalPaginas = Math.ceil(listaCompleta.length / itensPorPagina);
+    
+    if (paginaAtual < totalPaginas) {
+        paginaAtual++;
+        renderizarTabela();
+    }
 }
 
 // CONTROLE DE MODOS (EDIÇÃO / VISUALIZAÇÃO)
@@ -150,14 +220,12 @@ function abrirParaCadastrar() {
     document.getElementById('modalTitle').innerText = "Cadastrar Novo Item";
     document.getElementById('formEquipamento').reset();
     
-    // REMOVIDO 'inputTag' DESTA LISTA PARA QUE ELE NÃO SEJA HABILITADO
     const campos = ['inputNome', 'inputFabricante', 'txtDescricao', 'selectCriticidade', 'selectEtapa'];
     campos.forEach(id => document.getElementById(id).disabled = false);
 
-    // Garante que o campo de TAG fique limpo e bloqueado no cadastro
     const inputTag = document.getElementById('inputTag');
     inputTag.disabled = true;
-    inputTag.placeholder = "Gerado automaticamente"; // Opcional: muda o placeholder para avisar o usuário
+    inputTag.placeholder = "Gerado automaticamente"; 
 
     document.getElementById('btnArquivarModal').style.display = 'none';
     document.getElementById('btnDesarquivarModal').style.display = 'none';
@@ -171,7 +239,7 @@ function fecharModal() {
     linhaSendoEditada = null;
 }
 
-// PROCESSO DE SALVAR / CADASTRAR (CORRIGIDO PARA ESPERAR LOGS ASSÍNCRONOS)
+// PROCESSO DE SALVAR / CADASTRAR 
 async function salvarFormulario(event) {
     event.preventDefault(); 
 
@@ -217,15 +285,11 @@ async function salvarFormulario(event) {
         if (isCadastro) {
             dadosForm.tag = resultado.tag; 
             itensAtivos.unshift(dadosForm);
-            // Salva log de cadastro no banco
             await registrarLog("CADASTRO", dadosForm.tag, `O equipamento "${dadosForm.nome}" foi cadastrado.`);
         } else {
             itensAtivos[idx] = dadosForm;
-            // Salva log de edição no banco
             await registrarLog("EDIÇÃO", itemAntigo.tag, alteracoes.length > 0 ? alteracoes.join(', ') : 'Nenhum valor modificado.');
         }
-
-        console.log(resultado.mensagem);
 
     } catch (erro) {
         console.error('Erro na requisição:', erro);
@@ -237,15 +301,11 @@ async function salvarFormulario(event) {
     fecharModal();
 }
 
-// ARQUIVAR / DESARQUIVAR (ATUALIZADO PARA SUPORTAR FUNÇÃO DE LOG ASSÍNCRONA)
+// ARQUIVAR / DESARQUIVAR
 async function moverEquipamento(origem, destino, acaoLog, textoLog) {
     if (!linhaSendoEditada) return;
     const idx = linhaSendoEditada.dataset.index;
-    
-    // Pega uma referência do item antes de retirá-lo da lista
     const item = origem[idx]; 
-    
-    // CORREÇÃO DE SEGURANÇA: Garante que a propriedade exista independente de maiúscula/minúscula no objeto
     const tagItem = item.tag || item.TAG || null;
 
     if (!tagItem) {
@@ -253,11 +313,9 @@ async function moverEquipamento(origem, destino, acaoLog, textoLog) {
         return;
     }
     
-    // Descobre se a intenção é arquivar ou desarquivar para mandar pro PHP
     const acaoBanco = (acaoLog === "ARQUIVAMENTO") ? "arquivar" : "desarquivar";
 
     try {
-        // 1. Envia a requisição para alterar as tabelas no MySQL
         const resposta = await fetch('../backend/arquivar_itens.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -267,31 +325,27 @@ async function moverEquipamento(origem, destino, acaoLog, textoLog) {
             })
         });
 
-        // Verifica se o servidor retornou status de sucesso HTTP (200)
         if (!resposta.ok) {
             throw new Error(`Erro no servidor: Status ${resposta.status}`);
         }
 
         const resultado = await resposta.json();
 
-        // Se o banco de dados falhar, interrompe o processo e avisa o usuário
         if (!resultado.sucesso) {
             alert('Erro ao mover o item no banco de dados: ' + resultado.erro);
             return;
         }
 
-        // 2. Se deu certo no banco, atualiza os arrays na memória local (da tela)
         origem.splice(idx, 1);
         destino.unshift(item);
 
-        // 3. Registra o log no banco e renderiza a tabela atualizada
         await registrarLog(acaoLog, tagItem, `O equipamento "${item.nome || ''}" ${textoLog}`);
         renderizarTabela();
         fecharModal();
 
     } catch (erro) {
         console.error('Erro na requisição de arquivamento:', erro);
-        alert('Erro de comunicação com o servidor ao tentar alterar o status do item. Verifique o console do navegador.');
+        alert('Erro de comunicação com o servidor ao tentar alterar o status do item.');
     }
 }
 
@@ -300,6 +354,7 @@ const desarquivarEquipamento = () => moverEquipamento(itensArquivados, itensAtiv
 
 function verArquivados() {
     visualizandoArquivados = !visualizandoArquivados;
+    paginaAtual = 1; 
     
     const btnIcone = document.getElementById('btnVerArquivados');
     const botoesAcao = document.querySelectorAll('.btn-editar, .btn-adicionar');
@@ -325,10 +380,12 @@ function configurarFiltroPesquisa() {
 
     inputPesquisa.addEventListener('input', function() {
         const termo = this.value.toLowerCase();
+        paginaAtual = 1; 
+        
         document.querySelectorAll('.custom-table tbody tr').forEach(linha => {
             if (linha.cells.length <= 1) return;
             const tag = linha.cells[0].innerText.toLowerCase();
-            const nome = Finder = linha.cells[1].innerText.toLowerCase();
+            const nome = linha.cells[1].innerText.toLowerCase();
             linha.style.display = (tag.includes(termo) || nome.includes(termo)) ? "" : "none";
         });
     });
@@ -336,6 +393,7 @@ function configurarFiltroPesquisa() {
 
 function ordenarPor(propriedade, pesos, flagCrescente, setaId) {
     const lista = visualizandoArquivados ? itensArquivados : itensAtivos;
+    paginaAtual = 1; 
     
     lista.sort((a, b) => {
         const pesoA = pesos[a[propriedade].toUpperCase()] || 0;
@@ -358,49 +416,103 @@ const ordenarPorEtapa = () => {
     ordemCrescenteEtapa = !ordemCrescenteEtapa;
 };
 
+// GERENCIAMENTO E PAGINAÇÃO DO HISTÓRICO
 function verHistorico() {
     cancelarModoEdicao();
     const modal = document.getElementById('modalHistorico');
     const listaContainer = document.getElementById('listaHistorico');
     if (!modal || !listaContainer) return;
 
-    listaContainer.innerHTML = historicoAlteracoes.length === 0 
-        ? `<p style="color: #a0a5ad; font-style: italic; text-align: center; padding: 20px;">Nenhum registro até o momento.</p>`
-        : historicoAlteracoes.map(log => {
-            let cor = log.acao === "CADASTRO" ? "#2196f3" : log.acao === "EDIÇÃO" ? "#ffb300" : log.acao === "ARQUIVAMENTO" ? "#d32f2f" : "#4fa135";
-            return `
-                <div style="background-color: #1a1c1e; border-left: 4px solid ${cor}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #a0a5ad; margin-bottom: 4px;">
-                        <span><strong>${log.data}</strong></span>
-                        <span style="color: ${cor}; font-weight: bold;">${log.acao}</span>
-                    </div>
-                    <p style="font-size: 14px; color: #ffffff; margin: 0;"><strong style="color: #5c913b;">[${log.tag}]</strong> ${log.detalhes}</p>
-                </div>`;
-        }).join('');
+    if (historicoAlteracoes.length === 0) {
+        listaContainer.innerHTML = `<p style="color: #a0a5ad; font-style: italic; text-align: center; padding: 20px;">Nenhum registro até o momento.</p>`;
+        atualizarControlesHistorico(0);
+        modal.classList.add('active');
+        return;
+    }
 
+    const totalPaginas = Math.ceil(historicoAlteracoes.length / itensPorPaginaHistorico);
+    if (paginaAtualHistorico > totalPaginas) paginaAtualHistorico = totalPaginas || 1;
+
+    const indiceInicio = (paginaAtualHistorico - 1) * itensPorPaginaHistorico;
+    const indiceFim = indiceInicio + itensPorPaginaHistorico;
+    const logsPaginados = historicoAlteracoes.slice(indiceInicio, indiceFim);
+
+    listaContainer.innerHTML = logsPaginados.map(log => {
+        let cor = log.acao === "CADASTRO" ? "#2196f3" : log.acao === "EDIÇÃO" ? "#ffb300" : log.acao === "ARQUIVAMENTO" ? "#d32f2f" : "#4fa135";
+        return `
+            <div style="background-color: #1a1c1e; border-left: 4px solid ${cor}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #a0a5ad; margin-bottom: 4px;">
+                    <span><strong>${log.data}</strong></span>
+                    <span style="color: ${cor}; font-weight: bold;">${log.acao}</span>
+                </div>
+                <p style="font-size: 14px; color: #ffffff; margin: 0;"><strong style="color: #5c913b;">[${log.tag}]</strong> ${log.detalhes}</p>
+            </div>`;
+    }).join('');
+
+    atualizarControlesHistorico(totalPaginas);
     modal.classList.add('active');
+}
+
+function atualizarControlesHistorico(totalPaginas) {
+    const btnAnterior = document.getElementById('btnHistAnterior');
+    const btnProxima = document.getElementById('btnHistProxima');
+    const infoPagina = document.getElementById('infoPaginaHistorico');
+
+    if (!btnAnterior || !btnProxima || !infoPagina) return;
+
+    if (totalPaginas <= 1) {
+        infoPagina.innerText = `Página 1 de 1`;
+        btnAnterior.disabled = true;
+        btnProxima.disabled = true;
+        return;
+    }
+
+    infoPagina.innerText = `Página ${paginaAtualHistorico} de ${totalPaginas}`;
+    btnAnterior.disabled = paginaAtualHistorico === 1;
+    btnProxima.disabled = paginaAtualHistorico === totalPaginas;
+}
+
+function paginaAnteriorHistorico() {
+    if (paginaAtualHistorico > 1) {
+        paginaAtualHistorico--;
+        verHistorico();
+    }
+}
+
+function proximaPaginaHistorico() {
+    const totalPaginas = Math.ceil(historicoAlteracoes.length / itensPorPaginaHistorico);
+    if (paginaAtualHistorico < totalPaginas) {
+        paginaAtualHistorico++;
+        verHistorico();
+    }
 }
 
 function fecharModalHistorico() {
     document.getElementById('modalHistorico').classList.remove('active');
+    paginaAtualHistorico = 1; 
 }
 
+// DOWNLOAD DO HISTÓRICO
 function baixarHistorico() {
     if (historicoAlteracoes.length === 0) return alert("Não há registros para exportar.");
 
-    // 1. Captura as datas selecionadas pelo usuário
-    const dataInicioStr = document.getElementById('dataInicio').value; // Formato YYYY-MM-DD
-    const dataFimStr = document.getElementById('dataFim').value;     // Formato YYYY-MM-DD
+    const dataInicioStr = document.getElementById('dataInicio').value;
+    const dataFimStr = document.getElementById('dataFim').value;
 
     let logsFiltrados = [...historicoAlteracoes];
 
-    // 2. Aplica o filtro de período se as datas forem preenchidas
     if (dataInicioStr || dataFimStr) {
         logsFiltrados = historicoAlteracoes.filter(log => {
-            // O formato vindo do banco é "YYYY-MM-DD HH:MM:SS" ou similar. 
-            // Vamos extrair apenas a parte da data inicial para comparar corretamente.
-            const dataLogIso = log.data.split(' ')[0]; // Pega "YYYY-MM-DD"
-            
+            let dataLogIso = "";
+
+            if (log.data.includes('-')) {
+                dataLogIso = log.data.split(' ')[0];
+            } 
+            else if (log.data.includes('/')) {
+                const dataPura = log.data.split(' ')[0]; 
+                dataLogIso = dataPura.split('/').reverse().join('-'); 
+            }
+
             let valido = true;
             if (dataInicioStr && dataLogIso < dataInicioStr) valido = false;
             if (dataFimStr && dataLogIso > dataFimStr) valido = false;
@@ -413,38 +525,38 @@ function baixarHistorico() {
         return alert("Nenhum registro encontrado para o período selecionado.");
     }
 
-    // 3. Monta a estrutura HTML do PDF
-    let conteudoHtml = `
-        <html>
-        <head>
-            <title>Relatório de Histórico de Alterações</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
-                h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
-                p.sub { text-align: center; color: #7f8c8d; font-size: 14px; margin-top: 0; margin-bottom: 30px; }
-                .item-log { border-bottom: 1px solid #eee; padding: 15px 0; page-break-inside: avoid; }
-                .topo-log { display: flex; justify-content: space-between; font-size: 12px; color: #7f8c8d; margin-bottom: 5px; }
-                .acao { font-weight: bold; }
-                .tag { color: #27ae60; font-weight: bold; }
-                .detalhes { font-size: 14px; margin: 0; color: #2c3e50; }
-                @media print {
-                    body { margin: 0; }
-                }
-            </style>
-        </head>
-        <body>
-            <h1>HISTÓRICO DE ALTERAÇÕES DO SISTEMA</h1>
-            <p class="sub">Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
-    `;
+    const agoraRelatorio = new Date();
+    const dataRelatorio = agoraRelatorio.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const horaRelatorio = agoraRelatorio.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
-    // Adiciona cada linha de log formatada
-    logsFiltrados.forEach((log, index) => {
-        // Formata a exibição da data para ficar bonita no PDF (de YYYY-MM-DD para DD/MM/YYYY se necessário)
+    let conteudoHtml = `
+            <html>
+            <head>
+                <title>Relatório de Histórico de Alterações</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
+                    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+                    p.sub { text-align: center; color: #7f8c8d; font-size: 14px; margin-top: 0; margin-bottom: 30px; }
+                    .item-log { border-bottom: 1px solid #eee; padding: 15px 0; page-break-inside: avoid; }
+                    .topo-log { display: flex; justify-content: space-between; font-size: 12px; color: #7f8c8d; margin-bottom: 5px; }
+                    .acao { font-weight: bold; }
+                    .tag { color: #27ae60; font-weight: bold; }
+                    .detalhes { font-size: 14px; margin: 0; color: #2c3e50; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>HISTÓRICO DE ALTERAÇÕES DO SISTEMA</h1>
+                <p class="sub">Gerado em: ${dataRelatorio} às ${horaRelatorio}</p>
+        `;
+
+    logsFiltrados.forEach((log) => {
         let dataExibicao = log.data;
-        if(log.data.includes('-')) {
+        
+        if (log.data.includes('-')) {
             const partes = log.data.split(' ');
             const dataPura = partes[0].split('-').reverse().join('/');
-            dataExibicao = `${dataPura} ${partes[1] || ''}`;
+            dataExibicao = `${dataPura} às ${partes[1] ? partes[1].substring(0, 5) : ''}`;
         }
 
         let corAcao = log.acao === "CADASTRO" ? "#2196f3" : log.acao === "EDIÇÃO" ? "#ffb300" : log.acao === "ARQUIVAMENTO" ? "#d32f2f" : "#4fa135";
@@ -462,12 +574,10 @@ function baixarHistorico() {
 
     conteudoHtml += `</body></html>`;
 
-    // 4. Abre a janela de impressão do navegador configurada para PDF
     const janelaImpressao = window.open('', '_blank');
     janelaImpressao.document.write(conteudoHtml);
     janelaImpressao.document.close();
     
-    // Aguarda um instante para carregar o HTML na nova janela e dispara o print/pdf
     setTimeout(() => {
         janelaImpressao.print();
         janelaImpressao.close();

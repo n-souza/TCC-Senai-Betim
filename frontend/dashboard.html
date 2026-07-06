@@ -54,6 +54,17 @@
                     </tbody>
             </table>
         </div>
+
+        <div class="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px;">
+            <button id="btnPagAnterior" onclick="paginaAnterior()" class="btn">
+                <span class="material-symbols-outlined">arrow_back_ios_new</span>   
+            </button>
+            <span id="infoPagina">Página 1 de 1</span>
+            <button id="btnPagProxima" onclick="proximaPagina()" class="btn">
+                <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </button>
+        </div>
+
     </div>
 
     <div class="modal-overlay" id="modalEquipamento">
@@ -139,8 +150,17 @@
             </button>
         </div>
         
-        <div id="listaHistorico" class="lista-historico-corpo">
-            </div>
+        <div id="listaHistorico" class="lista-historico-corpo"></div>
+
+        <div class="pagination-container" id="paginacaoHistorico" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding: 10px 0;">
+            <button id="btnHistAnterior" onclick="paginaAnteriorHistorico()" class="btn">
+                <span class="material-symbols-outlined">arrow_back_ios_new</span>   
+            </button>
+            <span id="infoPaginaHistorico">Página 1 de 1</span>
+            <button id="btnHistProxima" onclick="proximaPaginaHistorico()" class="btn">
+                <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </button>
+        </div>
     </div>
 </div>
 
