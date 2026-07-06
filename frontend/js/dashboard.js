@@ -149,11 +149,12 @@ function fecharModal() {
 }
 
 // PROCESSO DE SALVAR / CADASTRAR
-function salvarFormulario(event) {
+async function salvarFormulario(event) {
     event.preventDefault(); 
 
     const dadosForm = {
-        tag: document.getElementById('inputTag').value,
+        // Se for edição, precisamos da tag atual para mandar pro PHP saber quem atualizar
+        tag: document.getElementById('inputTag').value || null, 
         nome: document.getElementById('inputNome').value,
         fabricante: document.getElementById('inputFabricante').value,
         descricao: document.getElementById('txtDescricao').value,
@@ -163,13 +164,14 @@ function salvarFormulario(event) {
     };
 
     const isCadastro = document.getElementById('modalTitle').innerText === "Cadastrar Novo Item";
+    let acao = isCadastro ? "cadastrar" : "editar"; 
+    let idx = null;
+    let itemAntigo = null;
 
-    if (isCadastro) {
-        itensAtivos.unshift(dadosForm);
-        registrarLog("CADASTRO", dadosForm.tag, `O equipamento "${dadosForm.nome}" foi cadastrado.`);
-    } else if (linhaSendoEditada) {
-        const idx = linhaSendoEditada.dataset.index;
-        const itemAntigo = itensAtivos[idx];
+    // Lógica local de logs antes de enviar (para o caso de edição)
+    if (!isCadastro && linhaSendoEditada) {
+        idx = linhaSendoEditada.dataset.index;
+        itemAntigo = itensAtivos[idx];
         
         let alteracoes = [];
         if (itemAntigo.nome !== dadosForm.nome) alteracoes.push(`Nome ("${itemAntigo.nome}" ➔ "${dadosForm.nome}")`);
@@ -177,7 +179,40 @@ function salvarFormulario(event) {
         if (itemAntigo.etapa !== dadosForm.etapa) alteracoes.push(`Etapa (${itemAntigo.etapa} ➔ ${dadosForm.etapa})`);
 
         registrarLog("EDIÇÃO", itemAntigo.tag, alteracoes.length > 0 ? alteracoes.join(', ') : 'Nenhum valor modificado.');
-        itensAtivos[idx] = dadosForm;
+    }
+
+    // --- ENVIO PARA O PHP ---
+    try {
+        const resposta = await fetch('../backend/salvar_itens.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ acao: acao, dados: dadosForm })
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resultado.sucesso) {
+            alert('Erro ao salvar no banco: ' + resultado.erro);
+            return;
+        }
+        
+        // --- SE DEU CERTO NO BANCO, ATUALIZAMOS A TELA (MEMÓRIA LOCAL) ---
+        if (isCadastro) {
+            // Pegamos a tag real que o PHP/MySQL gerou e colocamos no objeto
+            dadosForm.tag = resultado.tag; 
+            
+            itensAtivos.unshift(dadosForm);
+            registrarLog("CADASTRO", dadosForm.tag, `O equipamento "${dadosForm.nome}" foi cadastrado.`);
+        } else {
+            itensAtivos[idx] = dadosForm;
+        }
+
+        console.log(resultado.mensagem);
+
+    } catch (erro) {
+        console.error('Erro na requisição:', erro);
+        alert('Erro de comunicação com o servidor.');
+        return;
     }
 
     renderizarTabela();

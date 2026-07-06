@@ -21,7 +21,7 @@ try {
     $pdo->beginTransaction();
 
     // 1. Busca os dados atuais usando o nome correto da chave primária (ID_Itens)
-    $stmtBusca = $pdo->prepare("SELECT * FROM itens WHERE ID_Itens = :id");
+    $stmtBusca = $pdo->prepare("SELECT * FROM itens WHERE tag = :id");
     $stmtBusca->execute([':id' => $idItem]);
     $item = $stmtBusca->fetch(PDO::FETCH_ASSOC);
 
@@ -30,12 +30,12 @@ try {
     }
 
     // 2. Insere na tabela 'itens_arquivados' respeitando as colunas exatas do seu banco (incluindo 'crticidade')
-    $sqlInserir = "INSERT INTO itens_arquivados (ID_Itens, nome, setor, observacao, criticidade, etapa) 
-                   VALUES (:id_itens, :nome, :setor, :observacao, :criticidade, :etapa)";
+    $sqlInserir = "INSERT INTO itens_arquivados (tag, nome, setor, observacao, criticidade, etapa) 
+                   VALUES (:tag, :nome, :setor, :observacao, :criticidade, :etapa)";
     
     $stmtInserir = $pdo->prepare($sqlInserir);
     $stmtInserir->execute([
-        ':id_itens'   => $item['ID_Itens'],
+        ':tag'   => $item['ID_Itens'],
         ':nome'       => $item['nome'],
         ':setor'      => $item['setor'],
         ':observacao' => $item['observacao'],
@@ -44,7 +44,7 @@ try {
     ]);
 
     // 3. Deleta o registro original da tabela de ativos
-    $stmtDeletar = $pdo->prepare("DELETE FROM itens WHERE ID_Itens = :id");
+    $stmtDeletar = $pdo->prepare("DELETE FROM itens WHERE tag = :id");
     $stmtDeletar->execute([':id' => $idItem]);
 
     // Confirma todas as operações na transação

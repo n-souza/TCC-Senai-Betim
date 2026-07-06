@@ -11,12 +11,12 @@ try {
     $pdo = Conexao::getConexao(); 
 
     // 1. Busca os ativos mapeando ID_Itens para id/tag, e observacao para descricao
-    $stmtAtivos = $pdo->prepare("SELECT ID_Itens AS id, ID_Itens AS tag, nome, setor, observacao AS descricao, criticidade, etapa FROM itens");
+    $stmtAtivos = $pdo->prepare("SELECT tag, nome, setor, observacao AS descricao, criticidade, etapa FROM itens");
     $stmtAtivos->execute();
     $ativos = $stmtAtivos->fetchAll(PDO::FETCH_ASSOC);
 
     // 2. Busca os arquivados - CORRIGIDO: de 'crticidade' para 'criticidade'
-    $stmtArquivados = $pdo->prepare("SELECT ID_Itens_arquivados AS id, ID_Itens AS tag, nome, setor, observacao AS descricao, criticidade AS criticidade, etapa FROM itens_arquivados");
+    $stmtArquivados = $pdo->prepare("SELECT ID_Itens_arquivados AS id, tag, nome, setor, observacao AS descricao, criticidade AS criticidade, etapa FROM itens_arquivados");
     $stmtArquivados->execute();
     $arquivados = $stmtArquivados->fetchAll(PDO::FETCH_ASSOC);
 
