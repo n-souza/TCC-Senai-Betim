@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function registrarLog(acao, tag, detalhes) {
     const agora = new Date();
     
+<<<<<<< HEAD
+=======
+    // Forçando o fuso horário de Brasília na criação do Log local
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
     const dataFormatada = agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     const horaFormatada = agora.toLocaleTimeString('pt-BR', { 
         timeZone: 'America/Sao_Paulo', 
@@ -384,7 +388,11 @@ function configurarFiltroPesquisa() {
         
         document.querySelectorAll('.custom-table tbody tr').forEach(linha => {
             if (linha.cells.length <= 1) return;
+<<<<<<< HEAD
             const tag = linha.cells[0].innerText.toLowerCase();
+=======
+            const tag = linea = linha.cells[0].innerText.toLowerCase();
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
             const nome = linha.cells[1].innerText.toLowerCase();
             linha.style.display = (tag.includes(termo) || nome.includes(termo)) ? "" : "none";
         });
@@ -501,16 +509,31 @@ function baixarHistorico() {
 
     let logsFiltrados = [...historicoAlteracoes];
 
+<<<<<<< HEAD
+=======
+    // Tratamento dinâmico para o filtro de datas
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
     if (dataInicioStr || dataFimStr) {
         logsFiltrados = historicoAlteracoes.filter(log => {
             let dataLogIso = "";
 
+<<<<<<< HEAD
             if (log.data.includes('-')) {
                 dataLogIso = log.data.split(' ')[0];
             } 
             else if (log.data.includes('/')) {
                 const dataPura = log.data.split(' ')[0]; 
                 dataLogIso = dataPura.split('/').reverse().join('-'); 
+=======
+            // Se a data vier do banco ("YYYY-MM-DD HH:MM:SS")
+            if (log.data.includes('-')) {
+                dataLogIso = log.data.split(' ')[0];
+            } 
+            // Se a data foi gerada recentemente pelo front ("DD/MM/YYYY às HH:MM")
+            else if (log.data.includes('/')) {
+                const dataPura = log.data.split(' ')[0]; // Pega "DD/MM/YYYY"
+                dataLogIso = dataPura.split('/').reverse().join('-'); // Transforma em "YYYY-MM-DD"
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
             }
 
             let valido = true;
@@ -525,6 +548,10 @@ function baixarHistorico() {
         return alert("Nenhum registro encontrado para o período selecionado.");
     }
 
+<<<<<<< HEAD
+=======
+    // Gerando o cabeçalho do PDF explicitando fuso horário de Brasília
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
     const agoraRelatorio = new Date();
     const dataRelatorio = agoraRelatorio.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     const horaRelatorio = agoraRelatorio.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -542,7 +569,13 @@ function baixarHistorico() {
                     .acao { font-weight: bold; }
                     .tag { color: #27ae60; font-weight: bold; }
                     .detalhes { font-size: 14px; margin: 0; color: #2c3e50; }
+<<<<<<< HEAD
                     @media print { body { margin: 0; } }
+=======
+                    @media print {
+                        body { margin: 0; }
+                    }
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
                 </style>
             </head>
             <body>
@@ -553,6 +586,10 @@ function baixarHistorico() {
     logsFiltrados.forEach((log) => {
         let dataExibicao = log.data;
         
+<<<<<<< HEAD
+=======
+        // Padroniza a exibição visual estritamente para o formato brasileiro DD/MM/YYYY
+>>>>>>> b9be6b6d46b56263ce9a2e2824c1b6435d19eed1
         if (log.data.includes('-')) {
             const partes = log.data.split(' ');
             const dataPura = partes[0].split('-').reverse().join('/');
