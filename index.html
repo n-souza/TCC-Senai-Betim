@@ -11,14 +11,14 @@
 </head>
 <body>
 
-    <div class="login-container">
+    <main class="login-container">
         
-        <div class="left-side">
+        <section class="left-side">
             <div class="content-wrapper">
-                <div class="header-warning">
+                <header class="header-warning">
                     <span id="user_icon" class="material-symbols-outlined">person</span>
                     <h2>ATENÇÃO!</h2>
-                </div>
+                </header>
 
                 <p class="notice-text">
                     Este sistema é de uso <span class="highlight">exclusivo</span> para funcionários registrados da empresa.<br>
@@ -27,8 +27,8 @@
 
                 <form class="login-form" id="loginForm" method="POST" action="backend/ProcessarLogin.php">
                     <div class="input-group">
-                        <label for="id">Email Corporativo *</label>
-                        <input type="text" id="email" name="email" required autocomplete="off">
+                        <label for="email">Email Corporativo *</label>
+                        <input type="email" id="email" name="email" required autocomplete="off">
                     </div>
                     
                     <div class="input-group">
@@ -38,19 +38,20 @@
                     
                     <button type="submit" class="btn-login">LOGIN</button>
                 </form>
-                <div id="msgerro"> 
+                
+                <div id="msgerro" role="alert"> 
                     <p>ERRO: Dados incorretos. Tente novamente.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="right-side">
+        <aside class="right-side">
             <div class="logo-wrapper">
-                <img src="frontend/images/Logo.svg" alt="Logo">
+                <img src="frontend/images/Logo.svg" alt="Logo Raden">
             </div>
-        </div>
+        </aside>
 
-    </div>
+    </main>
 
     <script src="frontend/js/login.js"></script>
 </body>

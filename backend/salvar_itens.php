@@ -28,7 +28,7 @@ try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':nome'        => $dados['nome'],
-            ':setor'       => $dados['fabricante'], // Mapeando o input 'fabricante' para a coluna 'setor'
+            ':setor'       => $dados['setor'], // Mapeando o input 'fabricante' para a coluna 'setor'
             ':observacao'  => $dados['descricao'],  // Mapeando o input 'descricao' para a coluna 'observacao'
             ':criticidade' => $dados['criticidade'],
             ':etapa'       => $dados['etapa']
@@ -53,7 +53,7 @@ try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':nome'        => $dados['nome'],
-            ':setor'       => $dados['fabricante'], // Mantendo o padrão do seu JS
+            ':setor'       => $dados['setor'], // Mantendo o padrão do seu JS
             ':observacao'  => $dados['descricao'],
             ':criticidade' => $dados['criticidade'],
             ':etapa'       => $dados['etapa'],

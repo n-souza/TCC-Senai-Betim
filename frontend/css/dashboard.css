@@ -8,9 +8,12 @@ body {
     padding: 20px;
 }
 
-.container {
+.container, .header-top-externo {
     width: 100%;
     max-width: 1200px;
+}
+
+.container {
     background-color: var(--bg-container);
     padding: 25px;
     border-radius: 8px;
@@ -19,8 +22,6 @@ body {
 
 /* Top Header & Botões Externos */
 .header-top-externo {
-    width: 100%;
-    max-width: 1200px;
     display: flex;
     justify-content: flex-end;
     gap: 8px;
@@ -76,7 +77,6 @@ body {
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: var(--text-white);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -114,8 +114,6 @@ body {
     text-align: left;
     word-break: break-all;
 }
-.conteudo-scroll::-webkit-scrollbar { width: 5px; }
-.conteudo-scroll::-webkit-scrollbar-thumb { background: var(--green-primary); border-radius: 4px; }
 
 .btn-action-arquivar {
     background: none; border: none; color: #8e8e93; cursor: pointer; padding: 5px; border-radius: 4px; transition: all 0.2s;
@@ -129,7 +127,7 @@ body {
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1000;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal-box { background-color: #26292b; border: 1.5px solid #193018; width: 90%; max-width: 500px; padding: 30px; border-radius: 8px; color: var(--text-white); }
+.modal-box { background-color: #26292b; border: 1.5px solid #193018; width: 90%; max-width: 500px; padding: 30px; border-radius: 8px; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 .close-btn { background: none; border: none; color: #a3a3a3; font-size: 22px; cursor: pointer; }
 
@@ -168,20 +166,71 @@ body {
 .filtro-data-label { color: var(--text-muted); font-size: 11px; font-weight: bold; }
 .filtro-data-input { background-color: #111315; color: var(--text-white); border: 1px solid #3a3f47; padding: 6px; border-radius: 4px; font-size: 13px; outline: none; }
 
-.btn.btn-gerar-pdf { background-color: #448639; color: var(--text-white); padding: 10px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 4px; }
+.btn.btn-gerar-pdf { background-color: #448639; padding: 10px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 4px; }
 .btn.btn-gerar-pdf:hover { background-color: #35692b; }
 .icone-pdf { font-size: 18px; font-weight: bold; }
 .lista-historico-corpo { max-height: 350px; overflow-y: auto; padding-right: 5px; }
+
+/* Paginação */
+.paginacao-container {
+    display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; user-select: none;
+}
+.btn-paginacao {
+    background-color: var(--bg-input); color: var(--text-white); border: 1px solid #3a3f45; border-radius: 4px;
+    padding: 6px 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-paginacao:hover:not(:disabled) { background-color: #5c913b; border-color: #5c913b; }
+.btn-paginacao:disabled { opacity: 0.3; cursor: not-allowed; border-color: #2a2e33; }
+.info-paginacao { color: var(--text-muted); font-size: 14px; font-weight: 600; min-width: 60px; text-align: center; }
+
+/* ==========================================
+   ESTILIZAÇÃO PERSONALIZADA DO SCROLL
+   ========================================== */
+
+/* 1. Scroll Global da Página (body) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background-color: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color); border-radius: 6px; border: 2px solid var(--bg-dark);
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+
+/* 2. Scroll dos Elementos Internos e Células */
+.table-container::-webkit-scrollbar,
+.lista-historico-corpo::-webkit-scrollbar,
+.conteudo-scroll::-webkit-scrollbar { 
+    width: 8px; height: 8px; 
+}
+.table-container::-webkit-scrollbar-track,
+.lista-historico-corpo::-webkit-scrollbar-track { 
+    background-color: var(--bg-input); border-radius: 4px; 
+}
+.table-container::-webkit-scrollbar-thumb,
+.lista-historico-corpo::-webkit-scrollbar-thumb,
+.conteudo-scroll::-webkit-scrollbar-thumb { 
+    background-color: var(--green-primary); border-radius: 4px; 
+}
+.table-container::-webkit-scrollbar-thumb:hover,
+.lista-historico-corpo::-webkit-scrollbar-thumb:hover,
+.conteudo-scroll::-webkit-scrollbar-thumb:hover { 
+    background-color: var(--green-hover); 
+}
+
+/* Ajuste específico para o mini scroll da célula */
+.conteudo-scroll::-webkit-scrollbar { width: 4px; }
+.conteudo-scroll::-webkit-scrollbar-track { background-color: transparent; }
+.conteudo-scroll::-webkit-scrollbar-thumb { border-radius: 2px; }
 
 /* Responsividade Dashboard */
 @media (max-width: 768px) {
     body { padding: 10px; }
     .container { padding: 15px; }
-    .toolbar, .button-group, .form-row, .modal-footer-buttons { flex-direction: column; align-items: stretch; gap: 10px; }
+    .toolbar, .button-group, .form-row, .modal-footer-buttons, .filtro-pdf-container, .filtro-datas-wrapper { 
+        flex-direction: column; align-items: stretch; gap: 10px; 
+    }
     .search-container { max-width: 100%; }
     .btn { width: 100%; justify-content: center; }
-
-    .filtro-pdf-container, .filtro-datas-wrapper { flex-direction: column; align-items: stretch; }
 
     /* Transformando tabela em cards */
     .custom-table, .custom-table thead, .custom-table tbody, .custom-table th, .custom-table td, .custom-table tr { display: block; }
@@ -203,17 +252,3 @@ body {
     .custom-table td .conteudo-scroll { max-height: 80px; height: 80px; }
     .modal-box { width: 95%; padding: 20px; }
 }
-
-/* Paginação */
-.paginacao-container {
-    display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; user-select: none;
-    font-family: var(--font-dashboard);
-}
-.btn-paginacao {
-    background-color: var(--bg-input); color: var(--text-white); border: 1px solid #3a3f45; border-radius: 4px;
-    padding: 6px 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;
-    display: flex; align-items: center; justify-content: center;
-}
-.btn-paginacao:hover:not(:disabled) { background-color: #5c913b; border-color: #5c913b; color: var(--text-white); }
-.btn-paginacao:disabled { opacity: 0.3; cursor: not-allowed; border-color: #2a2e33; }
-.info-paginacao { color: var(--text-muted); font-size: 14px; font-weight: 600; min-width: 60px; text-align: center; }
