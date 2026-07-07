@@ -2,7 +2,7 @@
 // backend/buscar_itens.php
 ob_start();
 
-require_once __DIR__ . '/Conexao/Conexao.php'; 
+require_once __DIR__ . '/../Conexao/Conexao.php';
 
 header('Content-Type: application/json');
 

@@ -2,7 +2,7 @@
 
 body {
     background-color: #1a1a1a;
-    font-family: var(--font-login); /* Ajustado para usar a variável do tema */
+    font-family: var(--font-login);
 }
 
 /* Lado Esquerdo - Form */
@@ -63,8 +63,8 @@ body {
 .input-group input {
     background: transparent; 
     border: none; 
-    border-bottom: 2px solid #ffffff;
-    color: #ffffff; 
+    border-bottom: 2px solid var(--text-white);
+    color: var(--text-white); 
     font-size: 1.1rem; 
     padding: 5px 0; 
     outline: none; 
@@ -78,7 +78,7 @@ body {
 /* Botão Login */
 .btn-login {
     background-color: #418233; 
-    color: #ffffff; 
+    color: var(--text-white); 
     border: 1px solid #529443;
     padding: 12px 0; 
     width: 160px; 

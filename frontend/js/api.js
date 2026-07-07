@@ -2,7 +2,7 @@
 const API = {
     async buscarItens() {
         try {
-            const response = await fetch('../backend/buscar_itens.php');
+            const response = await fetch('../backend/api/buscarItens.php');
             const dados = await response.json();
             if (dados.sucesso) return dados;
             throw new Error(dados.erro || "Erro desconhecido");
@@ -17,7 +17,7 @@ const API = {
         if (!confirm("Tem certeza que deseja arquivar este item? Ele sairá da lista de ativos.")) return false;
 
         try {
-            const response = await fetch('../backend/arquivar_item.php', {
+            const response = await fetch('../backend/api/arquivarItens.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: idDoItem })

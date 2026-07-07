@@ -1,6 +1,6 @@
 <?php
 // backend/arquivar_item.php
-require_once __DIR__ . '/Conexao/Conexao.php';
+require_once __DIR__ . '/../Conexao/Conexao.php';
 
 header('Content-Type: application/json');
 

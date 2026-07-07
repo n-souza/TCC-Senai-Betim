@@ -11,17 +11,17 @@
 </head>
 
 <body>
-    <div class="header-top-externo">
+    <header class="header-top-externo">
         <button class="btn-externo-icone btn-historico" id="btnVerHistorico" onclick="verHistorico()" title="Histórico de Alterações">
             <span class="material-symbols-outlined">history</span>
         </button>
         <button class="btn-externo-icone btn-arquivados" id="btnVerArquivados" onclick="verArquivados()" title="Visualizar Itens Arquivados">
             <span class="material-symbols-outlined">archive</span>
         </button>
-    </div>
+    </header>
 
-    <div class="container">
-        <div class="toolbar" id="toolbarContainer">
+    <main class="container">
+        <section class="toolbar" id="toolbarContainer">
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="Pesquisar...">
                 <span class="search-icon">&#128269;</span>
@@ -36,9 +36,9 @@
                 <button class="btn btn-selecionar" style="background-color: #5c913b; cursor: default;">Selecione o Objeto</button>
                 <button class="btn btn-cancelar" onclick="cancelarModoEdicao()" style="background-color: #5c913b; padding: 10px 15px;">X</button>
             </div>
-        </div>
+        </section>
 
-        <div class="table-container">
+        <section class="table-container">
             <table class="custom-table">
                 <thead>
                     <tr>
@@ -51,42 +51,50 @@
                     </tr>
                 </thead>
                 <tbody>
-                    </tbody>
+                </tbody>
             </table>
-        </div>
-    </div>
+        </section> 
+
+        <nav class="paginacao-container" aria-label="Paginação da tabela">
+            <button class="btn-paginacao" id="btnTabelaAnterior" onclick="mudarPaginaTabela(-1)">&lt;</button>
+            <span class="info-paginacao" id="infoPaginaTabela">1 / 1</span>
+            <button class="btn-paginacao" id="btnTabelaProxima" onclick="mudarPaginaTabela(1)">&gt;</button>
+        </nav>
+    </main>
 
     <div class="modal-overlay" id="modalEquipamento">
         <div class="modal-box">
-            <div class="modal-header">
+            <header class="modal-header">
                 <h2 id="modalTitle">Editar Equipamento</h2>
                 <button class="close-btn" onclick="fecharModal()">X</button>
-            </div>
+            </header>
             
             <form class="modal-form" id="formEquipamento">
                 <div class="form-group">
-                    <label>TAG</label>
+                    <label for="inputTag">TAG</label>
                     <input type="text" id="inputTag" placeholder="Gerado automaticamente" required disabled>
                 </div>
 
                 <div class="form-group">
-                    <label>Nome do Equipamento</label>
-                    <input type="text" id="inputNome" placeholder="Ex: Bomba de Polpa" required>
+                    <label for="inputNome">Nome do Equipamento</label>
+                    <input type="text" id="inputNome" placeholder="Ex: Bomba de Polpa" required autocomplete="off" list="listaNomesRecomendados">
+                    <datalist id="listaNomesRecomendados"></datalist>
                 </div>
 
                 <div class="form-group">
-                    <label>Fabricante</label>
-                    <input type="text" id="inputFabricante" placeholder="Ex: WEG, Siemens">
+                    <label for="inputSetor">Setor</label>
+                    <input type="text" id="inputSetor" placeholder="Ex: Planta de Beneficiamento" autocomplete="off" list="listaSetoresRecomendados">
+                    <datalist id="listaSetoresRecomendados"></datalist>
                 </div>
 
                 <div class="form-group">
-                    <label>Descrição Técnica</label>
+                    <label for="txtDescricao">Descrição Técnica</label>
                     <textarea id="txtDescricao" rows="3" placeholder="Especificações do item..." maxlength="300"></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Criticidade</label>
+                        <label for="selectCriticidade">Criticidade</label>
                         <select id="selectCriticidade">
                             <option value="baixa">Baixa</option>
                             <option value="media">Média</option>
@@ -95,7 +103,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Etapa de Reparo</label>
+                        <label for="selectEtapa">Etapa de Reparo</label>
                         <select id="selectEtapa">
                             <option value="envio">Envio</option>
                             <option value="peritagem">Peritagem</option>
@@ -106,44 +114,48 @@
                     </div>
                 </div>
 
-                <div class="modal-footer-buttons">
+                <footer class="modal-footer-buttons">
                     <button type="button" class="btn-modal-arquivar" id="btnArquivarModal" onclick="arquivarEquipamento()">ARQUIVAR</button>
                     <button type="button" class="btn-modal-arquivar" id="btnDesarquivarModal" onclick="desarquivarEquipamento()" style="display: none; background-color: #448639; border-color: #386f2f;">DESARQUIVAR</button>
                     <button type="submit" class="btn-salvar">SALVAR ALTERAÇÕES</button>
-                </div>
+                </footer>
             </form>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalHistorico">
-    <div class="modal-box modal-historico-largura">
-        <div class="modal-header modal-historico-header">
-            <h2>Histórico de Alterações</h2>
-            <button class="close-btn modal-historico-close" onclick="fecharModalHistorico()">X</button>
-        </div>
-        
-        <div class="filtro-pdf-container">
-            <div class="filtro-datas-wrapper">
-                <div class="filtro-data-grupo">
-                    <label class="filtro-data-label">DE:</label>
-                    <input type="date" id="dataInicio" class="filtro-data-input">
+        <div class="modal-box modal-historico-largura">
+            <header class="modal-header modal-historico-header">
+                <h2>Histórico de Alterações</h2>
+                <button class="close-btn modal-historico-close" onclick="fecharModalHistorico()">X</button>
+            </header>
+            
+            <div class="filtro-pdf-container">
+                <div class="filtro-datas-wrapper">
+                    <div class="filtro-data-grupo">
+                        <label for="dataInicio" class="filtro-data-label">DE:</label>
+                        <input type="date" id="dataInicio" class="filtro-data-input">
+                    </div>
+                    <div class="filtro-data-grupo">
+                        <label for="dataFim" class="filtro-data-label">ATÉ:</label>
+                        <input type="date" id="dataFim" class="filtro-data-input">
+                    </div>
                 </div>
-                <div class="filtro-data-grupo">
-                    <label class="filtro-data-label">ATÉ:</label>
-                    <input type="date" id="dataFim" class="filtro-data-input">
-                </div>
+                
+                <button class="btn btn-gerar-pdf" onclick="baixarHistorico()">
+                    <span class="material-symbols-outlined">file_save</span> GERAR PDF        
+                </button>
             </div>
             
-            <button class="btn btn-gerar-pdf" onclick="baixarHistorico()">
-                <span class="material-symbols-outlined">file_save</span> GERAR PDF        
-            </button>
+            <div id="listaHistorico" class="lista-historico-corpo"></div>
+            
+            <nav class="paginacao-container" style="margin-top: 15px; margin-bottom: 5px;" aria-label="Paginação do histórico">
+                <button class="btn-paginacao" id="btnHistAnterior" onclick="mudarPaginaHist(-1)">&lt;</button>
+                <span class="info-paginacao" id="infoPaginaHist">1 / 1</span>
+                <button class="btn-paginacao" id="btnHistProxima" onclick="mudarPaginaHist(1)">&gt;</button>
+            </nav>
         </div>
-        
-        <div id="listaHistorico" class="lista-historico-corpo">
-            </div>
     </div>
-</div>
-
 
     <script src="js/api.js" defer></script>
     <script src="js/dashboard.js" defer></script>

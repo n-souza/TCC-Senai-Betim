@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
-/* ==========================================
-   RAIZ, VARIÁVEIS E CONFIGURAÇÕES GLOBAIS
-   ========================================== */
 :root {
     --font-login: 'Roboto', sans-serif;
     --font-dashboard: 'Roboto', sans-serif;
@@ -31,12 +28,13 @@ body {
     min-height: 100vh;
 }
 
-/* Forçar elementos de formulário a usarem a fonte do Dashboard por padrão */
-input, textarea, select, button {
-    font-family: var(--font-dashboard);
+/* Herança automática global para elementos de texto e formulário */
+input, textarea, select, button, .btn {
+    font-family: inherit;
+    color: inherit;
 }
 
-/* Container de Login */
+/* Container de Login e escopo de fontes */
 .login-container {
     font-family: var(--font-login);
     display: flex;
@@ -44,13 +42,8 @@ input, textarea, select, button {
     height: 100vh;
     overflow: hidden;
 }
-
-/* Garante que os inputs dentro do login usem a fonte de login */
-.login-container input, 
-.login-container button,
-.login-container select,
-.login-container textarea {
-    font-family: var(--font-login);
+.login-container input, .login-container button, .login-container select, .login-container textarea {
+    font-family: inherit;
 }
 
 .header-warning h2 {
@@ -67,11 +60,11 @@ input, textarea, select, button {
     font-weight: bold;
     display: inline-block;
 }
-.badge.alta { background-color: #d32f2f; color: #fff; }
-.badge.media { background-color: #f57c00; color: #fff; }
-.badge.baixa { background-color: #388e3c; color: #fff; }
-.badge.envio { background-color: #7b1fa2; color: #fff; }
-.badge.peritagem { background-color: #1976d2; color: #fff; }
-.badge.aprovacao { background-color: #00796b; color: #fff; }
+.badge.alta { background-color: #d32f2f; }
+.badge.media { background-color: #f57c00; }
+.badge.baixa { background-color: #388e3c; }
+.badge.envio { background-color: #7b1fa2; }
+.badge.peritagem { background-color: #1976d2; }
+.badge.aprovacao { background-color: #00796b; }
 .badge.execucao { background-color: #fbc02d; color: #333; }
-.badge.retorno { background-color: #e64a19; color: #fff; }
+.badge.retorno { background-color: #e64a19; }
