@@ -1,28 +1,40 @@
-RADEN
+# RADEN
 
 Solução para visualização de indicadores de Controle de Estoque de manutenção.
 
-Criação de uma solução interativa para visualizar o controle de materiais estocáveis no almoxarifado e dos itens que estão no reparo externo.  
+Criação de uma solução interativa para visualizar o controle de materiais estocáveis no almoxarifado e dos itens que estão no reparo externo.
 
-(https://plataforma.gpinovacao.senai.br/plataforma/demandas-da-industria/interna/12333) 
+Plataforma desenvolvida no âmbito da Demanda da Indústria do SENAI Betim.
+Link da demanda: https://plataforma.gpinovacao.senai.br/plataforma/demandas-da-industria/interna/12333
 
-1- Tecnologias utilizadas: ● Banco de dados (MySQL); ● Interface Web com HTML, CSS, PHP e JavaScipt;
+## Instruções de Acesso
 
-2- Integrantes do Grupo: ● Líder: David Fernandes; ○ Natália de Souza; ○ Rian Calvin; ○ Augusto Henrique; ○ Enzo Duarte;
+Acesse o sistema através do link: [raden.site.je](http://raden.site.je) e entre no login com as credenciais abaixo:
 
-INSTRUÇÕES: Copie: "raden.site.je" e cole no URL, entre no login com o email e a senha disponibilizados para Gestor ou Colaborador.
+### GESTOR
+* **Email:** nataliagestor@raden.com.br
+* **Senha:** 123456
 
-GESTOR: 
-Email: NataliaGestor@raden.com.br
-Senha: 123456
+### COLABORADOR
+* **Email:** davidcolaborador@raden.com.br
+* **Senha:** 123456
 
-COLABORADOR:
-Email: DavidColaborador@raden.com.br
-Senha: 123456
+## Tecnologias Utilizadas
 
+* Banco de dados: MySQL
+* Interface Web: HTML, CSS, PHP e JavaScript
 
+## Integrantes do Grupo
 
+* Líder: David Fernandes
+* Natália de Souza
+* Rian Calvin
+* Augusto Henrique
+* Enzo Duarte
 
+## Estrutura de Diretórios
+
+```text
 TCC-SENAI-Betim-David/
 │
 ├── README.md
